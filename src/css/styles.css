@@ -301,12 +301,16 @@
     font-size: 14px;
 }
 
-/* Responsive */
-.mobile-menu-btn {
-    display: none;
-    background: none;
-    border: none;
-    color: var(--color-fg-default);
-    cursor: pointer;
-    padding: 8px;
+/* Footer */
+.footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--color-border-default);
+    text-align: center;
+    color: var(--color-fg-muted);
+    font-size: 14px;
+}
+
+.footer a {
+    color: var(--color-accent-fg);
 }
