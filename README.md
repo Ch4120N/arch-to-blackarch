@@ -259,7 +259,7 @@ mount /dev/sda1 /mnt/boot
 Use `pacstrap` to install the base packages, kernel, and firmware:
 
 ```bash
-pacstrap /mnt base linux linux-firmware base-devel vim nano networkmanager
+pacstrap -K /mnt base linux linux-firmware base-devel vim nano networkmanager
 ```
 
 > [!NOTE]
@@ -398,7 +398,7 @@ This is critical to boot your new system. We'll cover **GRUB** for UEFI and BIOS
 
 ```bash
 # 1. Install GRUB and EFI boot manager
-pacman -S grub efibootmgr
+pacman -S grub os-prober efibootmgr
 
 # 2. Install GRUB to the EFI directory
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
@@ -411,7 +411,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 ```bash
 # 1. Install GRUB
-pacman -S grub
+pacman -S grub os-prober
 
 # 2. Install GRUB to the Master Boot Record (replace /dev/sda with your disk)
 grub-install --target=i386-pc /dev/sda
