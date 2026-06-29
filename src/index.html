@@ -62,7 +62,7 @@
             </button>
             <a href="#" class="logo">
                 <img src="img/logo.png" alt="Logo" class="logo-img">
-                <span>Arch Linux to BlackArch</span>
+                <span>Arch Linux to BlackArch
             </a>
         </div>
         <div class="header-right">
@@ -147,9 +147,9 @@
                     <h1>The Ultimate Arch Linux to BlackArch Guide</h1>
                     <p class="subtitle">From Noob to Pro: A Comprehensive Journey</p>
                     <div class="meta-info">
-                        <span>Maintained by <strong>Ch4120N</strong></span>
-                        <span>Last updated: 2026</span>
-                        <span>Reading time: ~45 minutes</span>
+                        <span>Maintained by <strong>Ch4120N</strong>
+                        <span>Last updated: 2026
+                        <span>Reading time: ~45 minutes
                     </div>
                 </header>
 
@@ -352,18 +352,15 @@ exit</code></pre>
                     <h2>Step 4: Partition the Disk</h2>
                     <p>This is the most critical step in the installation process. Partitioning divides your hard drive into separate sections, each serving a different purpose. Getting this wrong can result in data loss, so pay close attention.</p>
                     
-                    <h3>Understanding Partitions</h3>
-                    <p>A partition is a logical division of a hard disk. Think of it like dividing a large room into smaller rooms, each with a specific purpose. For Arch Linux, we typically need:</p>
-                    <ul>
-                        <li><strong>EFI System Partition (ESP):</strong> Required for UEFI systems. Contains the bootloader files. Must be formatted as FAT32.</li>
-                        <li><strong>Swap partition:</strong> Used as virtual memory when RAM is full. Also used for hibernation. Size should match your RAM if you plan to hibernate, or 2-4GB otherwise.</li>
-                        <li><strong>Root partition (/):</strong> Contains the operating system, applications, and user data. This is where most of your disk space goes.</li>
-                    </ul>
+                    <h3>Why We Use cfdisk</h3>
+                    <div class="alert alert-tip">
+                        <strong>Note:</strong>We use <code>cfdisk</code> instead of <code>fdisk</code> because it provides a visual, menu-driven interface that's much easier for beginners. You can see your partition layout clearly and navigate with arrow keys.
+                    </div>
 
                     <h3>Identifying Your Disk</h3>
-                    <p>First, we need to identify which disk we're working with:</p>
+                    <p>First, identify which disk you're working with:</p>
                     <pre><code class="language-bash hljs">lsblk</code></pre>
-                    <p>This command lists all block devices (disks and partitions). Look for your main disk - it's usually the largest one. Common names:</p>
+                    <p>Look for your main disk - it's usually the largest one. Common names:</p>
                     <ul>
                         <li><code>/dev/sda</code> - SATA/IDE drives</li>
                         <li><code>/dev/nvme0n1</code> - NVMe SSDs</li>
@@ -372,56 +369,181 @@ exit</code></pre>
                     <p>For this guide, we'll use <code>/dev/sda</code> as an example. Replace it with your actual disk name.</p>
 
                     <div class="alert alert-note">
-                        <strong>Check UEFI vs BIOS:</strong> Run <code>ls /sys/firmware/efi/efivars</code>. If the directory exists and contains files, you're in UEFI mode. If it doesn't exist or is empty, you're in BIOS/Legacy mode. This determines which partitioning scheme you need.
+                        <strong>Check UEFI vs BIOS:</strong>
+                        Run <code>ls /sys/firmware/efi/efivars</code>. If the directory exists and contains files, you're in UEFI mode (use GPT). If it doesn't exist or is empty, you're in BIOS/Legacy mode (use MBR).
                     </div>
 
-                    <h3>Partitioning with fdisk</h3>
-                    <p>We'll use <code>fdisk</code>, a command-line partitioning tool. It's interactive, meaning you type commands and see results immediately:</p>
-                    <pre><code class="language-bash hljs">fdisk /dev/sda</code></pre>
-                    <p>This opens fdisk with your disk. You'll see a command prompt. Here's what to do for UEFI systems:</p>
+                    <h3>Option 1: UEFI Systems (GPT Partition Table)</h3>
+                    <p>For modern computers with UEFI firmware, use GPT partition table:</p>
+                    <pre><code class="language-bash hljs">cfdisk /dev/sda</code></pre>
+                    <p>
+                        <strong>cfdisk will open with a visual interface. Follow these steps:</strong>
+                    </p>
                     <ol>
-                        <li><strong>Create GPT partition table:</strong> Type <code>g</code> and press Enter. GPT (GUID Partition Table) is the modern standard, required for UEFI and supports disks larger than 2TB.</li>
-                        <li><strong>Create EFI partition:</strong> 
+                        <li>
+                            <strong>Select Partition Table Type:</strong>
+                            If prompted, select <code>gpt</code> and press Enter.
+                        </li>
+                        <li>
+                            <strong>Create EFI System Partition (512MB):</strong>
                             <ul>
-                                <li>Type <code>n</code> (new partition)</li>
-                                <li>Press Enter for default partition number (1)</li>
-                                <li>Press Enter for default first sector</li>
-                                <li>Type <code>+512M</code> for size (512 megabytes)</li>
-                                <li>Type <code>t</code> (change type)</li>
-                                <li>Type <code>1</code> (EFI System)</li>
+                                <li>Select <strong>[ New ]</strong> (use arrow keys, press Enter)</li>
+                                <li>Enter partition size: <code>512M</code></li>
+                                <li>Select <strong>[ Primary ]</strong> and press Enter</li>
+                                <li>With the new partition selected, choose <strong>[ Type ]</strong></li>
+                                <li>Select <code>EFI System</code> from the list</li>
                             </ul>
                         </li>
-                        <li><strong>Create swap partition:</strong>
+                        <li>
+                            <strong>Create Swap Partition (4GB):</strong>
                             <ul>
-                                <li>Type <code>n</code></li>
-                                <li>Press Enter for partition number (2)</li>
-                                <li>Press Enter for first sector</li>
-                                <li>Type <code>+4G</code> for size (4 gigabytes)</li>
-                                <li>Type <code>t</code></li>
-                                <li>Type <code>2</code> (select partition 2)</li>
-                                <li>Type <code>19</code> (Linux swap)</li>
+                                <li>Select <strong>[ New ]</strong></li>
+                                <li>Enter size: <code>4G</code> (or match your RAM size for hibernation)</li>
+                                <li>Select <strong>[ Primary ]</strong></li>
+                                <li>Choose <strong>[ Type ]</strong> and select <code>Linux swap</code></li>
                             </ul>
                         </li>
-                        <li><strong>Create root partition:</strong>
+                        <li>
+                            <strong>Create Root Partition (Remaining Space):</strong>
                             <ul>
-                                <li>Type <code>n</code></li>
-                                <li>Press Enter for partition number (3)</li>
-                                <li>Press Enter for first sector</li>
+                                <li>Select <strong>[ New ]</strong></li>
                                 <li>Press Enter to use all remaining space</li>
-                                <li>Type is already "Linux filesystem" by default</li>
+                                <li>Select <strong>[ Primary ]</strong></li>
+                                <li>Type is already <code>Linux filesystem</code> (default)</li>
                             </ul>
                         </li>
-                        <li><strong>Write changes:</strong> Type <code>w</code> to write the partition table to disk. This is when the actual changes are made.</li>
+                        <li>
+                            <strong>Write Changes to Disk:</strong>
+                            <ul>
+                                <li>Select <strong>[ Write ]</strong></li>
+                                <li>Type <code>yes</code> to confirm (THIS WILL ERASE EXISTING DATA!)</li>
+                            </ul>
+                        </li>
+                        <li>Select <strong>[ Quit ]</strong> to exit cfdisk</li>
+                    </ol>
+
+                    <h3>
+                        Option 2: BIOS/Legacy Systems (MBR Partition Table)
+                    </h3>
+                    <p>
+                        For older computers with BIOS firmware, use MBR partition table:
+                    </p>
+                    <pre><code class="language-bash hljs">cfdisk /dev/sda</code></pre>
+                    <p>
+                        <strong>Follow these steps in cfdisk:</strong>
+                    </p>
+                    <ol>
+                        <li>
+                            <strong>
+                                Select Partition Table Type:
+                            </strong>
+                             If prompted, select <code>dos</code> (MBR) and press Enter.
+                        </li>
+                        <li>
+                            <strong>
+                                Create Boot Partition (512MB):
+                            </strong>
+                            <ul>
+                                <li>
+                                    Select <strong>[ New ]</strong>
+                                </li>
+                                <li>
+                                    Enter size: <code>512M</code>
+                                </li>
+                                <li>
+                                    Select <strong>[ Primary ]</strong>
+                                </li>
+                                <li>
+                                    Choose <strong>[ Bootable ]</strong> to set the boot flag
+                                </li>
+                                <li>
+                                    Type is <code>Linux</code> (default)
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>
+                                Create Swap Partition (4GB):
+                            </strong>
+                            <ul>
+                                <li>
+                                    Select <strong>[ New ]</strong>
+                                </li>
+                                <li>
+                                    Enter size: <code>4G</code>
+                                </li>
+                                <li>
+                                    Select <strong>[ Primary ]</strong>
+                                </li>
+                                <li>
+                                    Choose <strong>[ Type ]</strong> and select <code>Linux swap</code>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>
+                                Create Root Partition (Remaining Space):
+                            </strong>
+                            <ul>
+                                <li>
+                                    Select <strong>[ New ]</strong>
+                                </li>
+                                <li>
+                                    Press Enter to use all remaining space
+                                </li>
+                                <li>
+                                    Select <strong>[ Primary ]</strong>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>
+                                Write Changes:
+                            </strong>
+                            <ul>
+                                <li>
+                                    Select <strong>[ Write ]</strong>
+                                </li>
+                                <li>
+                                    Type <code>yes</code> to confirm
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            Select <strong>[ Quit ]</strong> to exit
+                        </li>
                     </ol>
 
                     <div class="alert alert-warning">
-                        <strong>Warning:</strong> Once you type <code>w</code>, the partition table is written and any existing data on the disk will be lost. Make sure you're working on the correct disk!
+                        <strong>
+                            Warning:
+                        </strong>
+                        When you select <strong>[ Write ]</strong> and confirm with <code>yes</code>, the partition table is written and any existing data on the disk will be permanently lost. Double-check you're working on the correct disk!
                     </div>
 
-                    <h3>Verifying Partitions</h3>
-                    <p>After writing, verify your partitions were created correctly:</p>
+                    <h3>
+                        Verifying Partitions
+                    </h3>
+                    <p>
+                        After exiting cfdisk, verify your partitions were created correctly:
+                    </p>
                     <pre><code class="language-bash hljs">lsblk</code></pre>
-                    <p>You should see <code>/dev/sda1</code> (512M), <code>/dev/sda2</code> (4G), and <code>/dev/sda3</code> (remaining space).</p>
+                    <p>
+                        <strong>For UEFI/GPT, you should see:</strong>
+                    </p>
+                    <ul>
+                        <li><code>/dev/sda1</code> - 512M (EFI System)</li>
+                        <li><code>/dev/sda2</code> - 4G (Linux swap)</li>
+                        <li><code>/dev/sda3</code> - Remaining space (Linux filesystem)</li>
+                    </ul>
+                    <p>
+                        <strong>For BIOS/MBR, you should see:</strong>
+                    </p>
+                    <ul>
+                        <li><code>/dev/sda1</code> - 512M (Linux, bootable)</li>
+                        <li><code>/dev/sda2</code> - 4G (Linux swap)</li>
+                        <li><code>/dev/sda3</code> - Remaining space (Linux filesystem)</li>
+                    </ul>
                 </section>
 
                 <section id="step5">
